@@ -5,13 +5,9 @@
  * Compile line: g++ -std=c++14 main.cpp -o main.out -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
  */
 
-using namespace std;
-// using namespace sf;
-
 // 'constexpr' define um valor imutável em tempo de compilação
 constexpr int windowWidth{800}, windowHeight{600};
 constexpr float ballRadius{10.f}, ballVelocity{8.f};
-
 constexpr float paddleWidth{60.f}, paddleHeight{20.f}, paddleVelocity{6.f};
 
 class Ball {
@@ -80,6 +76,23 @@ public:
 	float bottom () {	return y() + shape.getSize().y / 2.f;	}
 };
 
+// Checa se dois objetos estão se sobrepondo
+template <class T1, class T2> bool isIntersecing (T1& mA, T2& mB) {
+	return  mA.right() >= mB.left() && mA.left() <= mB.right()
+					&& mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
+}
+
+void testCollision(Paddle& mPaddle, Ball& mBall) {
+	if (!isIntersecing(mPaddle, mBall)) return;
+
+	mBall.velocity.y = -ballVelocity;
+
+	if (mBall.x() < mPaddle.x()) 
+		mBall.velocity.x = -ballVelocity;
+	else 
+		mBall.velocity.x = ballVelocity;
+}
+
 int main () {
 	Ball ball{windowWidth / 2, windowHeight /2 };
 	Paddle paddle {windowWidth / 2, windowHeight - 50};
@@ -104,6 +117,9 @@ int main () {
 		// Renderiza os objetos na tela
 		ball.update();
 		paddle.update();
+
+		// testa colisão a cada ciclo
+		testCollision(paddle, ball);
 
 		window.draw(ball.shape);
 		window.draw(paddle.shape);
