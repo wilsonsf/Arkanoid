@@ -2,7 +2,10 @@
 #include <SFML/Graphics.hpp>
 
 /*
- * Compile line: g++ -std=c++14 main.cpp -o main.out -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
+ * Compile line: g++ -std=c++11 main.cpp -o main.out -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
+
+ * g++ -std=c++11 -c main.cpp -I/home/agil5393/SFML/include
+ * g++ -std=c++11 main.o -o arkanoid.out -L/home/agil5393/SFML/lib -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
  */
 
 // 'constexpr' define um valor imutável em tempo de compilação
