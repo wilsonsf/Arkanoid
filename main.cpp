@@ -27,7 +27,22 @@ public:
 	}
 
 	// Atualiza o objeto movendo com a velocidade atual;
-	void update () { shape.move (velocity); }
+	void update () { 
+		shape.move (velocity); 
+
+		// Pra manter a bola dentro da tela, precisamos testar se está nas 
+		// extremidades da tela e inverter sua velocidade
+		if (left() < 0 || right() > windowWidth) velocity.x *= -1;
+		if (top() < 0 || bottom() > windowHeight) velocity.y *= -1;
+	}
+
+	// (0,0) é no topo da esquerda
+	float x()				{ return shape.getPosition().x; }
+	float y() 			{	return shape.getPosition().y; }
+	float left() 		{ return x() - shape.getRadius();	}
+	float right() 	{ return x() + shape.getRadius();	}
+	float top() 		{	return y() - shape.getRadius();	}
+	float bottom () {	return y() + shape.getRadius();	}
 };
 
 int main () {
