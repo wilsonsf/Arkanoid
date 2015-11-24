@@ -10,11 +10,14 @@ using namespace std;
 
 // 'constexpr' define um valor imutável em tempo de compilação
 constexpr int windowWidth{800}, windowHeight{600};
-constexpr float ballRadius{10.f};
+constexpr float ballRadius{10.f}, ballVelocity{8.f};
 
 class Ball {
 public:
 	sf::CircleShape shape;
+
+	// Vetor bidimensional que armazena a velocidade.
+	sf::Vector2f velocity {-ballVelocity, -ballVelocity};
 
 	Ball(float mX, float mY) {
 		shape.setPosition(mX, mY);
@@ -22,6 +25,9 @@ public:
 		shape.setFillColor(sf::Color::Red);
 		shape.setOrigin(ballRadius, ballRadius);
 	}
+
+	// Atualiza o objeto movendo com a velocidade atual;
+	void update () { shape.move (velocity); }
 };
 
 int main () {
@@ -47,6 +53,7 @@ int main () {
 		window.clear(sf::Color::Black);
 
 		// Renderiza os objetos na tela
+		ball.update();
 		window.draw(ball.shape);
 
 
