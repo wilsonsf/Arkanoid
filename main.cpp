@@ -8,6 +8,7 @@
 using namespace std;
 using namespace sf;
 
+// 'constexpr' define um valor imutável em tempo de compilação
 constexpr int windowWidth{800}, windowHeight{600};
 
 int main () {
@@ -16,11 +17,21 @@ int main () {
 	RenderWindow window({windowWidth,windowHeight}, "Arkanoid - 1");
 	window.setFramerateLimit(60);
 
-	while (true) {
+	// Loop do jogo
+	while (window.isOpen()) {
+
+		// Monitora os eventos e reage de acordo
+		sf::Event event;
+		while(window.pollEvent(event)) {
+			if(event.type == sf::Event::KeyPressed && event.key.code == Keyboard::Key::Escape) {
+				window.close();
+			}
+		}
+
+		// Limpa a tela 
 		window.clear(Color::Black);
 
-		if(Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
-
+		// Exibe os conteúdos da tela
 		window.display();
 	}
 
