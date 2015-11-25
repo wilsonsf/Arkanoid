@@ -130,7 +130,6 @@ void testCollision(Brick& mBrick, Ball& mBall) {
 	//Destruindo o bloco
 	mBrick.destroyed = true;
 
-
 	// Calcula o quanto da bola sobrepôs o bloco e cada direção
 	float overlapLeft{mBall.right() - mBrick.left()};
 	float overlapRight{mBrick.right() - mBall.left()};
@@ -153,9 +152,6 @@ void testCollision(Brick& mBrick, Ball& mBall) {
 		mBall.velocity.x *= -1;
 	else
 		mBall.velocity.y *= -1;
-
-
-
 }
 
 int main () {
