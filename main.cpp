@@ -1,9 +1,11 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-/*
- * Compile line: g++ -std=c++11 main.cpp -o main.out -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
+#include <vector>
 
+/*
+ * Compile line: g++ -std=c++11 main.cpp -o arkanoid.out -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
+ *
  * g++ -std=c++11 -c main.cpp -I/home/agil5393/SFML/include
  * g++ -std=c++11 main.o -o arkanoid.out -L/home/agil5393/SFML/lib -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
  */
@@ -12,6 +14,8 @@
 constexpr int windowWidth{800}, windowHeight{600};
 constexpr float ballRadius{10.f}, ballVelocity{8.f};
 constexpr float paddleWidth{60.f}, paddleHeight{20.f}, paddleVelocity{6.f};
+constexpr float blockWidth{60.f}, blockHeight{20.f};
+constexpr int countBlocksX{11}, countBlocksY{4};
 
 class Ball {
 public:
@@ -61,7 +65,6 @@ public:
 	void update () {
 		shape.move(velocity);
 
-
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)
 					&& left() > 0) velocity.x = -paddleVelocity;
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)
@@ -79,10 +82,33 @@ public:
 	float bottom () {	return y() + shape.getSize().y / 2.f;	}
 };
 
+class Brick {
+public:
+	sf::RectangleShape shape;
+
+	bool destroyed{false};
+
+	Brick(float mX, float mY) {
+		shape.setPosition(mX, mY);
+		shape.setSize({blockWidth, blockHeight});
+		shape.setFillColor(sf::Color::Yellow);
+		shape.setOrigin(blockWidth /2.f, blockHeight /2.f );
+	}
+
+	float x()				{ return shape.getPosition().x; }
+	float y() 			{	return shape.getPosition().y; }
+	float left() 		{ return x() - shape.getSize().x / 2.f;	}
+	float right() 	{ return x() + shape.getSize().x / 2.f;	}
+	float top() 		{	return y() - shape.getSize().y / 2.f;	}
+	float bottom () {	return y() + shape.getSize().y / 2.f;	}
+};
+
 // Checa se dois objetos estão se sobrepondo
 template <class T1, class T2> bool isIntersecing (T1& mA, T2& mB) {
-	return  mA.right() >= mB.left() && mA.left() <= mB.right()
-					&& mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
+	return  mA.right() >= mB.left() && 
+					mA.left() <= mB.right()	&& 
+					mA.bottom() >= mB.top() && 
+					mA.top() <= mB.bottom();
 }
 
 void testCollision(Paddle& mPaddle, Ball& mBall) {
@@ -99,6 +125,19 @@ void testCollision(Paddle& mPaddle, Ball& mBall) {
 int main () {
 	Ball ball{windowWidth / 2, windowHeight /2 };
 	Paddle paddle {windowWidth / 2, windowHeight - 50};
+
+	std::vector<Brick> bricks;
+
+	for(int iX{0}; iX < countBlocksX; ++iX)
+		for(int iY{0}; iY < countBlocksY; ++iY) 
+			bricks.emplace_back((iX + 1) * (blockWidth + 3) +22,
+													(iY + 2) * (blockHeight +3));
+		
+		// { // Equivalente a emplace_back : C++11
+		// 	Brick umBrick{(iX + 1) * (blockWidth + 3) +22,
+		// 											(iY + 2) * (blockHeight +3)};
+		// 	bricks.push_back(umBrick);
+		// }
 
 	sf::RenderWindow window({windowWidth,windowHeight}, "Arkanoid - 5");
 	window.setFramerateLimit(60);
@@ -126,6 +165,10 @@ int main () {
 
 		window.draw(ball.shape);
 		window.draw(paddle.shape);
+
+		// for(int i{0}; i < bricks.size(); ++i) // Equivalente
+		for(auto& brick : bricks) // C++11
+			window.draw(brick.shape);
 
 		// Exibe os conteúdos da tela
 		window.display();
