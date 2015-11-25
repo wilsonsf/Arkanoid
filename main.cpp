@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <vector>
-
+#include <cmath>
 /*
  * Compile line: g++ -std=c++11 main.cpp -o arkanoid.out -lsfml-system -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network
  *
@@ -122,6 +122,42 @@ void testCollision(Paddle& mPaddle, Ball& mBall) {
 		mBall.velocity.x = ballVelocity;
 }
 
+void testCollision(Brick& mBrick, Ball& mBall) {
+
+	// Se não está sobrepondo ou se já está destruido, faz nada
+	if(!isIntersecing(mBrick, mBall) || mBrick.destroyed) return;
+
+	//Destruindo o bloco
+	mBrick.destroyed = true;
+
+
+	// Calcula o quanto da bola sobrepôs o bloco e cada direção
+	float overlapLeft{mBall.right() - mBrick.left()};
+	float overlapRight{mBrick.right() - mBall.left()};
+	float overlapTop{mBrick.bottom() - mBall.top()};
+	float overlapBottom{mBrick.top() - mBall.bottom()};
+
+	// Se a sobreposição da esquerda é menor que a direita, significa que a bola
+	// sobrepos o bloco pela esquerda
+	bool ballFromLeft{std::fabs(overlapLeft) < std::fabs(overlapRight)};
+	// analogamente pode-se verificar sobre a direcao vertical
+	bool ballFromTop{std::fabs(overlapTop) < std::fabs(overlapBottom)};
+
+	float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
+	float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
+
+  // Se o tamanho da sobreposição no eixo X é menor que o no eixo Y, pode-se
+  // assumar que a bola atingiu o bloco horizontalmente, caso contrário, atingiu
+  // verticalmente o bloco.
+	if(std::fabs(minOverlapX) < std::fabs(minOverlapY))
+		mBall.velocity.x *= -1;
+	else
+		mBall.velocity.y *= -1;
+
+
+
+}
+
 int main () {
 	Ball ball{windowWidth / 2, windowHeight /2 };
 	Paddle paddle {windowWidth / 2, windowHeight - 50};
@@ -148,7 +184,8 @@ int main () {
 		// Monitora os eventos e reage de acordo
 		sf::Event event;
 		while(window.pollEvent(event)) {
-			if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Key::Escape) {
+			if(event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed 
+					&& event.key.code == sf::Keyboard::Key::Escape)) {
 				window.close();
 			}
 		}
@@ -162,6 +199,19 @@ int main () {
 
 		// testa colisão a cada ciclo
 		testCollision(paddle, ball);
+
+		// remove blocos colididos
+		bricks.erase(
+			remove_if(
+				begin(bricks),
+				end(bricks), 
+				[](const Brick& mBrick){ return mBrick.destroyed; }),
+			end(bricks)
+		);
+
+		// testa colisões entre bola e blocos
+		for(auto& brick : bricks) testCollision(brick,ball);
+
 
 		window.draw(ball.shape);
 		window.draw(paddle.shape);
